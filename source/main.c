@@ -6,6 +6,10 @@
 
 #include "menu.h"
 
+#define GETBIT(var, n) ((var >> n) & 1)
+#define BIT_STEP 1
+#define BIT_UPDATE_BANKS 2
+
 //Initiate the variables
 int  p, r, q, i, PrintBanks=0, i2 = 0, MenuIndex, step=0;
 char a[5000], b, o, s[5000], FilePath[262] , header[262] = "Please choose the script to run";
@@ -146,17 +150,13 @@ int main()
 	consoleInit(GFX_BOTTOM, &bottomScreen);
 	consoleSelect(&topScreen);
 	hidInit();
-	
-	MenuIndex = display_menu(mode, 4, "With which mode do you want to run your script");
-	if(MenuIndex==1)
-		step=1;
-	else if(MenuIndex==2)
-			PrintBanks=1;
-		else if(MenuIndex==3)
-			{
-				step=1;
-				PrintBanks=1;
-			}
+
+	MenuIndex = (display_menu(mode, 4, "With which mode do you want to run your script") << 1);
+
+	// if MenuIndex = 1, only step is set. if = 2, only PrintBanks is set. if = 3, both are set
+	step = GETBIT(MenuIndex, BIT_STEP);
+	PrintBanks = GETBIT(MenuIndex, BIT_UPDATE_BANKS);
+
 	//Find all files in the FuckMii folder in the root of the sd card
 	ListDir("/FuckMii", files);
 	//Ask the user which file to run (might need to be made better, due for some people to have tons of files in their folder)
