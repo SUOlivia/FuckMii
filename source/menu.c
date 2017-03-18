@@ -9,6 +9,8 @@ int display_menu(const char *menu_entries[], const int entries, const char *head
 	u32 kDown;
 	int ctr = 0;
 
+	consoleClear();
+
 	while(aptMainLoop())
 	{
 
@@ -17,7 +19,7 @@ int display_menu(const char *menu_entries[], const int entries, const char *head
 
 		if (redraw)
 		{
-			consoleClear();
+			printf("\x1b[0;0H"); //places cursor at top left of screen
 			printf("%s\n\n", headerstr);
 			for(int i = 0; i < entries; i++)
 			{
