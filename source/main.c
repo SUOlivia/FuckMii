@@ -28,13 +28,9 @@ void Wait4key(u32 key)
 	while(aptMainLoop())
 		{
 			hidScanInput();
-			u32 kDown = hidKeysDown();
-			if(key==KEY_A)
-				if(kDown & KEY_A)
-					break;
-			if(key==KEY_START)
-				if(kDown & KEY_START)
-					break;
+			u32 kDown = (hidKeysDown() & key);
+			if(kDown & KEY_A) break;
+			if(kDown & KEY_START) break;
 			
 			gspWaitForVBlank();
 		}
