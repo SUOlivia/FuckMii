@@ -6,6 +6,8 @@
 
 #include "menu.h"
 
+#define SCRIPTS_PATH "/3ds/FuckMii/scripts/"
+
 #define GETBIT(var, n) ((var >> n) & 1)
 #define BIT_STEP 1
 #define BIT_UPDATE_BANKS 2
@@ -164,13 +166,13 @@ int main()
 	PrintBanks = GETBIT(MenuIndex, BIT_UPDATE_BANKS);
 
 	//Find all files in the FuckMii folder in the root of the sd card
-	ListDir("/FuckMii", files);
+	ListDir(SCRIPTS_PATH, files);
 	//Ask the user which file to run (might need to be made better, due for some people to have tons of files in their folder)
 	MenuIndex = display_menu(files, i2, header);
 	if (MenuIndex == -1) goto exit;
 
 	//Getting ready for the file to be ran	
-	snprintf(FilePath, 255, "/FuckMii/%s", files[MenuIndex]);
+	snprintf(FilePath, 255, "%s%s", SCRIPTS_PATH, files[MenuIndex]);
 	consoleClear();
 	z=fopen(FilePath,"rb");
 	//Read and run file
