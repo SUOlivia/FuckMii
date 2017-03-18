@@ -49,7 +49,7 @@ int display_menu(const char *menu_entries[], const int entries, const char *head
 
 		else if (ctr < 0)
 		{
-			ctr = entries;
+			ctr = entries-1;
 			redraw = true;
 		}
 	}
