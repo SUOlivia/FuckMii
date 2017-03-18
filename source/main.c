@@ -45,7 +45,7 @@ void ListDir(char* path, const char* list[])
 		while ((ep = readdir(dp)))
 		{
 			list[i2] = malloc(strlen(ep->d_name) + 1);
-			strcpy(list[i2], ep->d_name);
+			strcpy((char *)list[i2], ep->d_name);
 			i2++;
 		}
 		(void) closedir (dp);
