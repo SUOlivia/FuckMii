@@ -152,6 +152,7 @@ int main()
 	hidInit();
 
 	MenuIndex = (display_menu(mode, 4, "With which mode do you want to run your script") << 1);
+	if (MenuIndex == (-1 << 1)) goto exit;
 
 	// if MenuIndex = 1, only step is set. if = 2, only PrintBanks is set. if = 3, both are set
 	step = GETBIT(MenuIndex, BIT_STEP);
@@ -160,7 +161,9 @@ int main()
 	//Find all files in the FuckMii folder in the root of the sd card
 	ListDir("/FuckMii", files);
 	//Ask the user which file to run (might need to be made better, due for some people to have tons of files in their folder)
-	MenuIndex = display_menu(files, i2, header); 
+	MenuIndex = display_menu(files, i2, header);
+	if (MenuIndex == -1) goto exit;
+
 	//Getting ready for the file to be ran	
 	snprintf(FilePath, 255, "/FuckMii/%s", files[MenuIndex]);
 	consoleClear();
@@ -179,6 +182,7 @@ int main()
 	printf("Press START to exit");
 	Wait4key(KEY_START);
 	
+	exit:
 	gfxExit();
 	return 0;
 }
