@@ -23,9 +23,7 @@ int display_menu(const char *menu_entries[], const int entries, const char *head
 			printf("%s\n\n", headerstr);
 			for(int i = 0; i < entries; i++)
 			{
-				if(ctr == i) printf("# ");
-				else printf("  ");
-				printf("%s\n", menu_entries[i]);
+				printf("%s %s\n", (ctr == i) ? "#" : " ", menu_entries[i]);
 			}
 			redraw = false;
 		}
