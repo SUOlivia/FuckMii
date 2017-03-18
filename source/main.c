@@ -96,24 +96,29 @@ void Update_banks(char *in)
 	}	
 }
 
-
-
 //This is all where the magic is done :D
 int interpret(char *c)
 {
 	char *d;
+	int update = 0;
 
 	r++;
 	while( *c ) {
+
+		switch (update) {
+			case BIT_UPDATE_BANKS: Update_banks(a);
+			case BIT_STEP: Step(); update = 0; break;
+		}
+
 		//if(strchr("<>+-,.[]\n",*c))printf("%c",*c);
 		switch(o=1,*c++) {
 		
-		case '<': p--; Step(); break; 
-		case '>': p++; Step(); break;
-		case '+': a[p]++; Update_banks(a); Step(); break; 
-		case '-': a[p]--; Update_banks(a); Step(); break; 
-		case '.': putchar(a[p]); fflush(stdout); Step(); break;
-		case ',': getcharinput(&a[p]);fflush(stdout); Update_banks(a); Step(); break;
+		case '<': p--; update = BIT_STEP; break;
+		case '>': p++; update = BIT_STEP; break;
+		case '+': a[p]++; update = BIT_UPDATE_BANKS; break;
+		case '-': a[p]--; update = BIT_UPDATE_BANKS; break;
+		case '.': putchar(a[p]); fflush(stdout); update = BIT_STEP; break;
+		case ',': getcharinput(&a[p]);fflush(stdout); update = BIT_UPDATE_BANKS; break;
 		case '[':
 			for( b=1,d=c; b && *c; c++ )
 				b+=*c=='[', b-=*c==']';
