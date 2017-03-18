@@ -95,6 +95,9 @@ void Update_banks(char *in)
 		printf("\n");
 		//delay(1000);
 		consoleSelect(&topScreen);
+		gfxFlushBuffers();
+		gfxSwapBuffers();
+		gspWaitForVBlank();
 	}	
 }
 
@@ -137,6 +140,9 @@ int interpret(char *c)
 			if(q>2)
 				printf("%2d %2d %2d %2d %2d %2d %2d %2d %2d %2d\n%*s\n",
 				       *a,a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],3*p+2,"^");
+			gfxFlushBuffers();
+			gfxSwapBuffers();
+			gspWaitForVBlank();
 			break;
 		default: o=0;
 		}
@@ -187,6 +193,9 @@ int main()
 	//Prompt the user to exit the app
 	consoleSelect(&bottomScreen);
 	printf("Press START to exit");
+	gfxFlushBuffers();
+	gfxSwapBuffers();
+	gspWaitForVBlank();
 	Wait4key(KEY_START);
 	
 	exit:
