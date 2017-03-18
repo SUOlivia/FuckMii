@@ -129,8 +129,10 @@ int interpret(char *c)
 			break;
 		default: o=0;
 		}
-		if( p<0 || p>100)
-			puts("RANGE ERROR"); return 0;
+		if( p<0 || p>100) {
+			puts("RANGE ERROR");
+			return 0;
+		}
 	}
 	r--;
 	return 0;
