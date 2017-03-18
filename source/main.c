@@ -190,6 +190,7 @@ int main()
 	Wait4key(KEY_START);
 	
 	exit:
+	hidExit();
 	gfxExit();
 	return 0;
 }
