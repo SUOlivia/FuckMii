@@ -6,6 +6,12 @@
 
 #include "menu.h"
 
+#define SCRIPTS_PATH "/3ds/FuckMii/scripts/"
+
+#define GETBIT(var, n) ((var >> n) & 1)
+#define BIT_STEP 1
+#define BIT_UPDATE_BANKS 2
+
 //Initiate the variables
 int  p, r, q, i, PrintBanks=0, i2 = 0, MenuIndex, step=0;
 char a[5000], b, o, s[5000], FilePath[262] , header[262] = "Please choose the script to run";
@@ -27,19 +33,11 @@ void Wait4key(u32 key)
 {
 	while(aptMainLoop())
 		{
-			gspWaitForVBlank();
 			hidScanInput();
-			u32 kDown = hidKeysDown();
-			if(key==KEY_A)
-				if(kDown & KEY_A)
-					break;
-			if(key==KEY_START)
-				if(kDown & KEY_START)
-					break;
+			u32 kDown = (hidKeysDown() & key);
+			if(kDown & KEY_A) break;
+			if(kDown & KEY_START) break;
 			
-			gfxFlushBuffers();
-			gfxSwapBuffers();
-
 			gspWaitForVBlank();
 		}
 }
@@ -53,7 +51,7 @@ void ListDir(char* path, const char* list[])
 		while ((ep = readdir(dp)))
 		{
 			list[i2] = malloc(strlen(ep->d_name) + 1);
-			strcpy(list[i2], ep->d_name);
+			strcpy((char *)list[i2], ep->d_name);
 			i2++;
 		}
 		(void) closedir (dp);
@@ -97,27 +95,35 @@ void Update_banks(char *in)
 		printf("\n");
 		//delay(1000);
 		consoleSelect(&topScreen);
+		gfxFlushBuffers();
+		gfxSwapBuffers();
+		gspWaitForVBlank();
 	}	
 }
-
-
 
 //This is all where the magic is done :D
 int interpret(char *c)
 {
 	char *d;
+	int update = 0;
 
 	r++;
 	while( *c ) {
+
+		switch (update) {
+			case BIT_UPDATE_BANKS: Update_banks(a);
+			case BIT_STEP: Step(); update = 0; break;
+		}
+
 		//if(strchr("<>+-,.[]\n",*c))printf("%c",*c);
 		switch(o=1,*c++) {
 		
-		case '<': p--; Step(); break; 
-		case '>': p++; Step(); break;
-		case '+': a[p]++; Update_banks(a); Step(); break; 
-		case '-': a[p]--; Update_banks(a); Step(); break; 
-		case '.': putchar(a[p]); fflush(stdout); Step(); break;
-		case ',': getcharinput(&a[p]);fflush(stdout); Update_banks(a); Step(); break;
+		case '<': p--; update = BIT_STEP; break;
+		case '>': p++; update = BIT_STEP; break;
+		case '+': a[p]++; update = BIT_UPDATE_BANKS; break;
+		case '-': a[p]--; update = BIT_UPDATE_BANKS; break;
+		case '.': putchar(a[p]); fflush(stdout); update = BIT_STEP; break;
+		case ',': getcharinput(&a[p]);fflush(stdout); update = BIT_UPDATE_BANKS; break;
 		case '[':
 			for( b=1,d=c; b && *c; c++ )
 				b+=*c=='[', b-=*c==']';
@@ -134,11 +140,16 @@ int interpret(char *c)
 			if(q>2)
 				printf("%2d %2d %2d %2d %2d %2d %2d %2d %2d %2d\n%*s\n",
 				       *a,a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],3*p+2,"^");
+			gfxFlushBuffers();
+			gfxSwapBuffers();
+			gspWaitForVBlank();
 			break;
 		default: o=0;
 		}
-		if( p<0 || p>100)
-			puts("RANGE ERROR"); return 0;
+		if( p<0 || p>100) {
+			puts("RANGE ERROR");
+			return 0;
+		}
 	}
 	r--;
 	return 0;
@@ -152,23 +163,22 @@ int main()
 	consoleInit(GFX_BOTTOM, &bottomScreen);
 	consoleSelect(&topScreen);
 	hidInit();
-	
-	MenuIndex = display_menu(mode, 4, "With which mode do you want to run your script");
-	if(MenuIndex==1)
-		step=1;
-	else if(MenuIndex==2)
-			PrintBanks=1;
-		else if(MenuIndex==3)
-			{
-				step=1;
-				PrintBanks=1;
-			}
+
+	MenuIndex = (display_menu(mode, 4, "With which mode do you want to run your script") << 1);
+	if (MenuIndex == (-1 << 1)) goto exit;
+
+	// if MenuIndex = 1, only step is set. if = 2, only PrintBanks is set. if = 3, both are set
+	step = GETBIT(MenuIndex, BIT_STEP);
+	PrintBanks = GETBIT(MenuIndex, BIT_UPDATE_BANKS);
+
 	//Find all files in the FuckMii folder in the root of the sd card
-	ListDir("/FuckMii", files);
+	ListDir(SCRIPTS_PATH, files);
 	//Ask the user which file to run (might need to be made better, due for some people to have tons of files in their folder)
-	MenuIndex = display_menu(files, i2, header); 
+	MenuIndex = display_menu(files, i2, header);
+	if (MenuIndex == -1) goto exit;
+
 	//Getting ready for the file to be ran	
-	snprintf(FilePath, 255, "/FuckMii/%s", files[MenuIndex]);
+	snprintf(FilePath, 255, "%s%s", SCRIPTS_PATH, files[MenuIndex]);
 	consoleClear();
 	z=fopen(FilePath,"rb");
 	//Read and run file
@@ -183,8 +193,13 @@ int main()
 	//Prompt the user to exit the app
 	consoleSelect(&bottomScreen);
 	printf("Press START to exit");
+	gfxFlushBuffers();
+	gfxSwapBuffers();
+	gspWaitForVBlank();
 	Wait4key(KEY_START);
 	
+	exit:
+	hidExit();
 	gfxExit();
 	return 0;
 }
