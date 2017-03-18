@@ -50,6 +50,8 @@ int display_menu(const char *menu_entries[], const int entries, const char *head
 			ctr = entries-1;
 			redraw = true;
 		}
+
+		gspWaitForVBlank();
 	}
 
 	return -1;
