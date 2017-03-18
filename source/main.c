@@ -27,7 +27,6 @@ void Wait4key(u32 key)
 {
 	while(aptMainLoop())
 		{
-			gspWaitForVBlank();
 			hidScanInput();
 			u32 kDown = hidKeysDown();
 			if(key==KEY_A)
@@ -37,9 +36,6 @@ void Wait4key(u32 key)
 				if(kDown & KEY_START)
 					break;
 			
-			gfxFlushBuffers();
-			gfxSwapBuffers();
-
 			gspWaitForVBlank();
 		}
 }
